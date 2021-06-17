@@ -11,7 +11,13 @@
       <meetings-page :username="authenticatedUsername"></meetings-page>
     </div>
     <div v-else>
-      <login-form @login="login($event)"></login-form>
+		<button :class="registering ? 'button button-outline' : ''" @click="registering = false">Loguje się</button>
+		<button :class="!registering ? 'button button-outline' : ''" @click="registering = true">Rejestruję się</button>
+      <div v-if="errorMessage" class ="alert-warning">{{ errorMessage }}</div>
+	  
+	  <login-form v-if ="!registering" @login="login($event)"></login-form>
+	  <login-form v-else @login="register($event)" button-label="Zarejestruj się"></login-form>
+	  
     </div>
   </div>
 </template>
@@ -25,13 +31,26 @@
         components: {LoginForm, MeetingsPage},
         data() {
             return {
-                authenticatedUsername: ""
+                authenticatedUsername: "",
+				registering: false,
+				errorMessage: ''
             };
         },
         methods: {
             login(user) {
                 this.authenticatedUsername = user.login;
+				this.errorMessage = '';
             },
+			register(user) {
+			   this.$http.post('participants', user)
+					.then(response => {
+					this.registering = false;
+					this.errorMessage = '';
+			})
+			.catch(response => {
+				this.errorMessage = 'Nazwa użytkownika jest zajęta';   
+     }); 
+			},
             logout() {
                 this.authenticatedUsername = '';
             }
@@ -47,6 +66,13 @@
 
   .logo {
     vertical-align: middle;
+  }
+  
+  .alert-warning {
+  border: 3px red dotted;
+  paddind: 3 px;
+  text-align: center;
+  background: pink;
   }
 </style>
 
