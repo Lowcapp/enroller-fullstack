@@ -31,7 +31,10 @@
         },
         methods: {
             addNewMeeting(meeting) {
-                this.meetings.push(meeting);
+				this.$http.post('meetings', meeting );
+				setTimeout(() => {this.meetings.push(meeting);
+								this.getMeetings();},600);
+
             },
             addMeetingParticipant(meeting) {
                 meeting.participants.push(this.username);
@@ -40,8 +43,19 @@
                 meeting.participants.splice(meeting.participants.indexOf(this.username), 1);
             },
             deleteMeeting(meeting) {
+				
+				setTimeout(() => {this.$http.delete('meetings/' + meeting.id );},500);
                 this.meetings.splice(this.meetings.indexOf(meeting), 1);
-            }
-        }
+
+			},
+			getMeetings(){
+				this.$http.get('meetings').then(response => { this.meetings = response.data;
+				})
+			}
+        },
+		mounted(){
+			this.getMeetings();
+		},
+
     }
 </script>
